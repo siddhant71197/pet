@@ -39,7 +39,7 @@ npm run dev                 # http://localhost:3000
 | `AD_PROVIDER` | `placeholder` (default) or `clp` |
 | `CLP_API_URL`, `CLP_API_KEY` | CLP ad provider settings (falls back to placeholders when unset) |
 | `DATABASE_URL` | Postgres pooled connection string (set by Vercel's Neon integration) |
-| `DATABASE_URL_UNPOOLED` | Postgres direct connection string, used for migrations |
+| `DATABASE_URL_UNPOOLED` | Optional direct connection string, used for migrations. Other names Vercel integrations use (`POSTGRES_URL`, `STORAGE_URL`, ...) are also detected. |
 
 Never commit `.env`; it is git-ignored.
 
