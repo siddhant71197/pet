@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Pet {
+  id        String     @id @default(cuid())
+  browserId String
+  type      String // "dog" | "cat"
+  name      String
+  ageMonths Int
+  sizeClass String // "small" | "medium" | "large"
+  weightKg  Float?
+  breed     String?
+  notes     String?
+  gender    String     @default("unknown") // "male" | "female" | "unknown" (legacy rows)
+  neutered  Boolean?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  plans     Plan[]
+  reminders Reminder[]
+
+  @@index([browserId])
+}
+
+model Plan {
+  id        String   @id @default(cuid())
+  petId     String
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  section   String // "nutrition" | "medical" | "grooming" | "training" | "analysis"
+  goal      String?
+  content   String // markdown
+  createdAt DateTime @default(now())
+
+  @@index([petId])
+}
+
+model InsuranceLead {
+  id         String   @id @default(cuid())
+  name       String
+  age        Int
+  email      String
+  zipcode    String
+  petId      String?
+  sourceAd   String?
+  adProvider String?
+  browserId  String?
+  createdAt  DateTime @default(now())
+}
+
+model Reminder {
+  id              String    @id @default(cuid())
+  petId           String
+  pet             Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  kind            String // "vaccine" | "medication" | "nutrition" | "grooming" | "checkup"
+  title           String
+  notes           String?
+  dueAt           DateTime // next occurrence
+  timeOfDay       String? // "HH:MM" local
+  recurrence      String    @default("none") // "none" | "daily" | "weekly" | "monthly" | "yearly" | "custom"
+  intervalDays    Int?
+  active          Boolean   @default(true)
+  snoozedUntil    DateTime?
+  lastCompletedAt DateTime?
+  completedCount  Int       @default(0)
+  source          String    @default("user") // "llm" | "user"
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  @@index([petId, dueAt])
+}
+
+model AdEvent {
+  id        String   @id @default(cuid())
+  adId      String
+  provider  String
+  slot      String
+  type      String // "impression" | "click" | "lead"
+  petId     String?
+  browserId String?
+  createdAt DateTime @default(now())
+
+  @@index([adId, type])
+}
