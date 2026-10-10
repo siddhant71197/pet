@@ -2,9 +2,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Postgres (e.g. Neon via the Vercel Marketplace). DATABASE_URL is the pooled
+// connection used by the app; DATABASE_URL_UNPOOLED is the direct connection
+// used by migrations.
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model Pet {

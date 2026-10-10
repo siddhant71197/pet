@@ -6,16 +6,24 @@ grooming, training), a vaccination plan with escalating alerts, and reminders
 with browser notifications. Includes a modular pet-insurance ad tray with lead
 capture.
 
-Built with Next.js 16, Prisma (SQLite) and LLMs on [Replicate](https://replicate.com).
+Built with Next.js 16, Prisma (Postgres, e.g. Neon) and LLMs on [Replicate](https://replicate.com).
 
-## Setup
+## Deploy on Vercel
 
-Requires Node.js 20+.
+1. Import this repo at https://vercel.com/new.
+2. In the project, open **Storage** -> **Create Database** -> **Neon (Postgres)** and connect
+   it to the project. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` automatically.
+3. In **Settings -> Environment Variables** add `REPLICATE_API_TOKEN` (and `ADMIN_PASSWORD`).
+4. Redeploy. The `vercel-build` script creates the database tables (`prisma migrate deploy`).
+
+## Local setup
+
+Requires Node.js 20+ and a Postgres database (you can reuse the Neon database from Vercel).
 
 ```bash
 npm install
 cp .env.example .env        # then fill in the values below
-npx prisma migrate deploy   # creates the local SQLite database
+npm run db:migrate          # creates the tables
 npm run dev                 # http://localhost:3000
 ```
 
@@ -30,7 +38,8 @@ npm run dev                 # http://localhost:3000
 | `ADMIN_PASSWORD` | Password for `/admin/leads` and `/admin/ads` (admin is disabled when unset) |
 | `AD_PROVIDER` | `placeholder` (default) or `clp` |
 | `CLP_API_URL`, `CLP_API_KEY` | CLP ad provider settings (falls back to placeholders when unset) |
-| `DATABASE_URL` | SQLite file, default `file:./dev.db` |
+| `DATABASE_URL` | Postgres pooled connection string (set by Vercel's Neon integration) |
+| `DATABASE_URL_UNPOOLED` | Postgres direct connection string, used for migrations |
 
 Never commit `.env`; it is git-ignored.
 
@@ -40,5 +49,5 @@ Never commit `.env`; it is git-ignored.
 - Reminder notifications appear while the site is open in a browser tab.
 - AI generations are rate-limited to 10 per browser per hour.
 - To add an ad provider, see the comment at the top of `lib/ads/index.ts`.
-- When deploying to a serverless host, set the environment variables in the
-  host's dashboard and switch to a hosted database (SQLite files are not persisted).
+- Secrets live only in `.env` locally and in the host's environment variables in
+  production. `.env` is git-ignored.
